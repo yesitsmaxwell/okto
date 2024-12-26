@@ -1,14 +1,10 @@
 #include <iostream>
+#include <cstdlib>
 #include <fstream>
 #include <vector>
 #include <string>
+#include <cstring>
 using namespace std;
-
-class tokens {
-    public:
-        string type;
-        string content;
-};
 
 bool checkForDec(string str) {
     try {
@@ -38,6 +34,34 @@ bool checkForInt(string str) {
     }
 }
 
+bool checkForStr(string str) {
+    //if (string[0] == '"' && string.back() == '"') return true;
+}
+
+string encodeInt(int input) {
+
+}
+
+string encodeDec(double input) {
+
+}
+
+string encodeStr(string input) {
+
+}
+
+int decodeInt(string input) {
+
+}
+
+double decodeDec(string input) {
+
+}
+
+string decodeStr(string input) {
+
+}
+
 string findType(string str, vector<string> terms, vector<string> list) {
     for (int i = 0; i < list.size(); i++) {
         if (str == terms[i]) {
@@ -62,16 +86,19 @@ int main(int argc, char *argv[]) {
     vector<string> vars;
     vector<string> varTypes;
     vector<string> varContents;
-    vector<string> functions = {"exit", "log", "type", "verbose", "str", "dec", "int"};
+    vector<string> functions = {"exit", "log", "type", "run", "verbose", "str", "dec", "int"};
     bool running = true;
     string in;
     int lineCounter = 0;
     int maxLines = 0;
     vector<string> lines;
+    bool fromFile = false;
     if (argc > 1) {
+        fromFile = true;
         ifstream inFile(argv[1]);
         string inLines;
         while (getline(inFile, inLines)) {
+            if (inLines[0] == '#') continue;
             lines.push_back(inLines);
             maxLines ++;
         }
@@ -158,7 +185,7 @@ int main(int argc, char *argv[]) {
         } else if (terms[0] == "log") {
             verbose("Log command run");
             if (terms.size() > 1) {
-                if (types[1] == "str" || types[1] == "num") {
+                if (types[1] == "str" || types[1] == "int" || types[1] == "dec") {
                     verbose("Logging directly");
                     cout << terms[1] << endl;
                 } else if (types[1] == "variable") {
@@ -196,7 +223,7 @@ int main(int argc, char *argv[]) {
                     error("when defining a variable, use '='");
                 } else if (types[3] != "str") {
                     error("you've initialised a string, but set it's value to something else");
-                } else if (types[2] != "unknown") {
+                } else if (types[1] != "unknown") {
                     error("variable is already initialised");
                 } else {
                     verbose("String is being defined...");
@@ -269,7 +296,10 @@ int main(int argc, char *argv[]) {
             if (terms.size() < 2) {
                 error("run requires an argument");
             } else {
-                int returnCode = system(terms[1])
+                string inputStr = terms[1];
+                char input[inputStr.length() + 1];
+                strcpy(input, inputStr.c_str());
+                int returnCode = system(input);
             }
         } else if (terms[0] == "verbose") {
             isVerbose = !isVerbose;
@@ -306,13 +336,19 @@ int main(int argc, char *argv[]) {
                                         break;
                                     }
                                 }
+                                verbose("Adding " + vars[2] + " and " + vars[4]);
                             }
                         }
                     }
                     break;
                 }
             }
-            if (!variableFound) error("I don't know how that works");
+            if (!variableFound && terms[0] != "") { 
+                error("I don't know how that works");
+                if (fromFile) {
+                    return 1;
+                }
+            }
         }
     }
     return 0;

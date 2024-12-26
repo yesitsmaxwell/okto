@@ -1,4 +1,4 @@
-verbose
+#!/home/max/code/okto/okto
 int dingus = 5
 log dingus
 dingus ++
