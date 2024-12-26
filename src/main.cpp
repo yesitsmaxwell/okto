@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 using namespace std;
@@ -11,8 +12,11 @@ class tokens {
 
 bool checkForDec(string str) {
     try {
-        stod(str);
-        return true;
+        if (stoi(str) * 1.0 == stod(str)) {
+            return false;
+        } else {
+            return true;
+        }    
     } catch (const std::invalid_argument& e) {
         return false;
     } catch (const std::out_of_range& e) {
@@ -22,8 +26,11 @@ bool checkForDec(string str) {
 
 bool checkForInt(string str) {
     try {
-        stoi(str);
-        return true;
+        if (stoi(str) * 1.0 == stod(str)) {
+            return true;
+        } else {
+            return false;
+        }
     } catch (const std::invalid_argument& e) {
         return false;
     } catch (const std::out_of_range& e) {
@@ -50,17 +57,34 @@ void verbose(string str) {
     if (isVerbose) cout << "\u001b[36m Info: " << str << "\u001b[39m" << endl;
 }
 
-int main() {
-    cout << "xdlang interpreter\n";
+int main(int argc, char *argv[]) {
+    cout << "Oktolang interpreter\n";
     vector<string> vars;
     vector<string> varTypes;
     vector<string> varContents;
     vector<string> functions = {"exit", "log", "type", "verbose", "str", "dec", "int"};
     bool running = true;
+    string in;
+    int lineCounter = 0;
+    int maxLines = 0;
+    vector<string> lines;
+    if (argc > 1) {
+        ifstream inFile(argv[1]);
+        string inLines;
+        while (getline(inFile, inLines)) {
+            lines.push_back(inLines);
+            maxLines ++;
+        }
+    }
     while (running) {
-        cout << "> ";
-        string in;
-        getline(cin, in);
+        if (argc == 1) {
+            cout << "> ";
+            getline(cin, in);
+        } else {
+            if (lineCounter == maxLines) break;
+            in = lines[lineCounter];
+            lineCounter ++;
+        }
         vector<string> terms = {""};
         vector<string> types;
         int termNumber = 0;
@@ -109,6 +133,8 @@ int main() {
                 else if (keyword == "*") { types.push_back("multiply"); }
                 else if (keyword == "/") { types.push_back("divide"); }
                 else if (keyword == "++") { types.push_back("increment"); }
+                else if (keyword == "--") { types.push_back("decrement"); }
+                else if (keyword == "=") { types.push_back("equals"); }
                 else if (keyword[0] == '"') { types.push_back("str"); } 
                 else if (checkForInt(keyword)) { types.push_back("int"); } 
                 else if (checkForDec(keyword)) { types.push_back("dec"); } 
@@ -196,7 +222,7 @@ int main() {
                     error("when defining a variable, set what the variable means");
                 } else if (terms[2] != "=") {
                     error("when defining a variable, use '='");
-                } else if (types[3] != "num") {
+                } else if (!(types[3] == "dec" || types[3] == "int")) {
                     error("you've initialised a decimal, but set it's value to something else");
                 } else {
                     verbose("Decimal is being defined...");
@@ -222,7 +248,7 @@ int main() {
                     error("when defining an integer, set what the variable means");
                 } else if (terms[2] != "=") {
                     error("when defining a variable, use '='");
-                } else if (types[3] != "num") {
+                } else if (types[3] != "int") {
                     error("you've initialised a number, but set it's value to something else");
                 } else {
                     verbose("Number is being defined...");
@@ -239,22 +265,49 @@ int main() {
                     }
                 }
             }
+        } else if (terms[0] == "run") {
+            if (terms.size() < 2) {
+                error("run requires an argument");
+            } else {
+                int returnCode = system(terms[1])
+            }
         } else if (terms[0] == "verbose") {
             isVerbose = !isVerbose;
         } else if (terms[0] == "help") {
-            cout << "xdlang Help\nBuilt In Functions:\n help: This current help function\n log:  Log something to the command line\n type: Find the type of the input\n str:  Define a string\n num:  Define a number\n";
+            cout << "Oktolang Help\nBuilt In Functions:\n help: This current help function\n log:  Log something to the command line\n type: Find the type of the input\n str:  Define a string\n num:  Define a number\n";
         } else {
             bool variableFound = false;
             for (int i = 0; i < vars.size(); i++) {
                 if (vars[i] == terms[0]) {
                     variableFound = true;
                     verbose("Found variable " + vars[i] + " with value " + varContents[i] + " and type " + varTypes[i]);
-                    if (varTypes[i] == "num") {
+                    if (varTypes[i] == "int" || varTypes[i] == "dec") {
                         if (types[1] == "increment") {
                             verbose("Incrementing variable " + vars[i] + " with value " + varContents[i]);
-                            varContents[i] = to_string(stod(varContents[i]) + 1);
+                            if (varTypes[i] == "dec") varContents[i] = to_string(stod(varContents[i]) + 1);
+                            if (varTypes[i] == "int") varContents[i] = to_string(stoi(varContents[i]) + 1);
                             verbose("New value of " + vars[i] + " is " + varContents[i]);
-                        }    
+                        } else if (types[1] == "equals") { 
+                            if (types[3] == "add") {
+                                verbose("Adding " + vars[2] + " and " + vars[4]);
+                                if (types[2] == "variable") {
+                                    for (int i = 0; i < vars.size(); i++) {
+                                        if (types[2] == vars[i]) {
+                                            terms[2] = vars[i];
+                                        }
+                                        break;
+                                    }
+                                }
+                                if (types[4] == "variable") {
+                                    for (int i = 0; i < vars.size(); i++) {
+                                        if (types[4] == vars[i]) {
+                                            terms[4] = vars[i];
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                     break;
                 }

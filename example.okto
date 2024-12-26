@@ -1,0 +1,5 @@
+verbose
+int dingus = 5
+log dingus
+dingus ++
+log dingus
