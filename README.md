@@ -52,3 +52,11 @@ Define an integer in Okto with `int myInteger = 7`
 Decimals are non-whole numbers, like `3.14159`.
 
 Define a decimal in Okto with `dec myDecimal = 3.14159`
+
+#### Updating Variables
+
+Right now only integers and decimals can be changed. I'll refer to these as numbers.
+
+Increment numbers with `myVariable ++` and decrement with `myVariable --`.
+
+Add stuff together in number variables with `myVariable = myOtherVariable + 7`. You can also subtract, multiply and divide with -, * and / respectively. For now you can't math outside of variables as it's still a prototype feature.
