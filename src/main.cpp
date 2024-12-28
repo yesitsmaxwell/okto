@@ -322,13 +322,16 @@ public:
         }
         
         else if (variables.find(tokens[0].first) != variables.end()) {
+            verbose("Doing stuff with variables...");
             if (tokens.size() < 2) {
                 error("Expected an operator");
                 return 0;
             }
             auto& var = variables[tokens[0].first];
             if (var.type == VarType::INTEGER) {
+                verbose("Var type is integer");
                 if (tokens[1].second == "incrementor") {
+                    verbose("Incrementing...");
                     if (tokens[1].first == "++") {
                         int currentValue = get<int>(var.value);
                         var.value = currentValue + 1;
@@ -336,7 +339,146 @@ public:
                         int currentValue = get<int>(var.value);
                         var.value = currentValue - 1;
                     }
-                } else if (tokens[1].second == "operator") {}
+                } else if (tokens[3].second == "operator" && tokens[1].second == "equals") {
+                    verbose("Detected an operator");
+                    if (tokens[3].first == "+") {
+                        verbose("Adding...");
+                        if (tokens[2].second == "variable") {
+                            verbose("Editing variable in 2nd token");
+                            auto& varAdd = variables[tokens[2].first];
+                            if (varAdd.type == VarType::INTEGER) {
+                                tokens[2].first = to_string(get<int>(varAdd.value));
+                                tokens[2].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[4].second == "variable") {
+                            verbose("Editing variable in 4th token");
+                            auto& varAdd = variables[tokens[4].first];
+                            if (varAdd.type == VarType::INTEGER) {
+                                tokens[4].first = to_string(get<int>(varAdd.value));
+                                tokens[4].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[2].second != "int" || tokens[4].second != "int") {
+                            verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
+                            error("make sure you're adding integers and integers when setting an integer");
+                            return 0;
+                        }
+                        verbose("Trying to add variables");
+                        var.value = stoi(tokens[2].first) + stoi(tokens[4].first);
+                        return 0;
+                    }
+                    if (tokens[3].first == "-") {
+                        verbose("Subtracting...");
+                        if (tokens[2].second == "variable") {
+                            verbose("Editing variable in 2nd token");
+                            auto& varAdd = variables[tokens[2].first];
+                            if (varAdd.type == VarType::INTEGER) {
+                                tokens[2].first = to_string(get<int>(varAdd.value));
+                                tokens[2].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[4].second == "variable") {
+                            verbose("Editing variable in 4th token");
+                            auto& varAdd = variables[tokens[4].first];
+                            if (varAdd.type == VarType::INTEGER) {
+                                tokens[4].first = to_string(get<int>(varAdd.value));
+                                tokens[4].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[2].second != "int" || tokens[4].second != "int") {
+                            verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
+                            error("make sure you're adding integers and integers when setting an integer");
+                            return 0;
+                        }
+                        verbose("Trying to subtract variables");
+                        var.value = stoi(tokens[2].first) - stoi(tokens[4].first);
+                        return 0;
+                    }
+                    if (tokens[3].first == "*") {
+                        verbose("Multiplying...");
+                        if (tokens[2].second == "variable") {
+                            verbose("Editing variable in 2nd token");
+                            auto& varAdd = variables[tokens[2].first];
+                            if (varAdd.type == VarType::INTEGER) {
+                                tokens[2].first = to_string(get<int>(varAdd.value));
+                                tokens[2].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[4].second == "variable") {
+                            verbose("Editing variable in 4th token");
+                            auto& varAdd = variables[tokens[4].first];
+                            if (varAdd.type == VarType::INTEGER) {
+                                tokens[4].first = to_string(get<int>(varAdd.value));
+                                tokens[4].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[2].second != "int" || tokens[4].second != "int") {
+                            verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
+                            error("make sure you're adding integers and integers when setting an integer");
+                            return 0;
+                        }
+                        verbose("Trying to multiply variables");
+                        var.value = stoi(tokens[2].first) * stoi(tokens[4].first);
+                        return 0;
+                    }
+                    if (tokens[3].first == "/") {
+                        verbose("Dividing...");
+                        if (tokens[2].second == "variable") {
+                            verbose("Editing variable in 2nd token");
+                            auto& varAdd = variables[tokens[2].first];
+                            if (varAdd.type == VarType::INTEGER) {
+                                tokens[2].first = to_string(get<int>(varAdd.value));
+                                tokens[2].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[4].second == "variable") {
+                            verbose("Editing variable in 4th token");
+                            auto& varAdd = variables[tokens[4].first];
+                            if (varAdd.type == VarType::INTEGER) {
+                                tokens[4].first = to_string(get<int>(varAdd.value));
+                                tokens[4].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[2].second != "int" || tokens[4].second != "int") {
+                            verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
+                            error("make sure you're adding integers and integers when setting an integer");
+                            return 0;
+                        }
+                        if (tokens[2].first == "0" || tokens[4].first == "0") {
+                            error("Don't divide by zero or the end of the universe will be upon us you idiot");
+                            verbose("(please don't try any funny business i'm begging you)");
+                            return 0;
+                        }
+                        verbose("Trying to divide variables");
+                        var.value = stoi(tokens[2].first) / stoi(tokens[4].first);
+                        return 0;
+                    }
+                }
             } else if (var.type == VarType::DECIMAL) {
                 if (tokens[1].second == "incrementor") {
                     if (tokens[1].first == "++") {
@@ -346,7 +488,146 @@ public:
                         double currentValue = get<double>(var.value);
                         var.value = currentValue - 1;
                     }
-                } 
+                } else if (tokens[3].second == "operator" && tokens[1].second == "equals") {
+                    verbose("Detected an operator");
+                    if (tokens[3].first == "+") {
+                        verbose("Adding...");
+                        if (tokens[2].second == "variable") {
+                            verbose("Editing variable in 2nd token");
+                            auto& varAdd = variables[tokens[2].first];
+                            if (varAdd.type == VarType::INTEGER || varAdd.type == VarType::DECIMAL) {
+                                tokens[2].first = to_string(get<double>(varAdd.value));
+                                tokens[2].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[4].second == "variable") {
+                            verbose("Editing variable in 4th token");
+                            auto& varAdd = variables[tokens[4].first];
+                            if (varAdd.type == VarType::INTEGER || varAdd.type == VarType::DECIMAL) {
+                                tokens[4].first = to_string(get<double>(varAdd.value));
+                                tokens[4].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[2].second != "int" || tokens[4].second != "int") {
+                            verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
+                            error("make sure you're adding integers and integers when setting an integer");
+                            return 0;
+                        }
+                        verbose("Trying to add variables");
+                        var.value = stod(tokens[2].first) + stoi(tokens[4].first);
+                        return 0;
+                    }
+                    if (tokens[3].first == "-") {
+                        verbose("Subtracting...");
+                        if (tokens[2].second == "variable") {
+                            verbose("Editing variable in 2nd token");
+                            auto& varAdd = variables[tokens[2].first];
+                            if (varAdd.type == VarType::INTEGER || varAdd.type == VarType::DECIMAL) {
+                                tokens[2].first = to_string(get<double>(varAdd.value));
+                                tokens[2].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[4].second == "variable") {
+                            verbose("Editing variable in 4th token");
+                            auto& varAdd = variables[tokens[4].first];
+                            if (varAdd.type == VarType::INTEGER || varAdd.type == VarType::DECIMAL) {
+                                tokens[4].first = to_string(get<double>(varAdd.value));
+                                tokens[4].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[2].second != "int" || tokens[4].second != "int") {
+                            verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
+                            error("make sure you're adding integers and integers when setting an integer");
+                            return 0;
+                        }
+                        verbose("Trying to subtract variables");
+                        var.value = stod(tokens[2].first) - stoi(tokens[4].first);
+                        return 0;
+                    }
+                    if (tokens[3].first == "*") {
+                        verbose("Multiplying...");
+                        if (tokens[2].second == "variable") {
+                            verbose("Editing variable in 2nd token");
+                            auto& varAdd = variables[tokens[2].first];
+                            if (varAdd.type == VarType::INTEGER || varAdd.type == VarType::DECIMAL) {
+                                tokens[2].first = to_string(get<double>(varAdd.value));
+                                tokens[2].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[4].second == "variable") {
+                            verbose("Editing variable in 4th token");
+                            auto& varAdd = variables[tokens[4].first];
+                            if (varAdd.type == VarType::INTEGER || varAdd.type == VarType::DECIMAL) {
+                                tokens[4].first = to_string(get<double>(varAdd.value));
+                                tokens[4].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[2].second != "int" || tokens[4].second != "int") {
+                            verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
+                            error("make sure you're adding integers and integers when setting an integer");
+                            return 0;
+                        }
+                        verbose("Trying to multiply variables");
+                        var.value = stod(tokens[2].first) * stoi(tokens[4].first);
+                        return 0;
+                    }
+                    if (tokens[3].first == "/") {
+                        verbose("Dividing...");
+                        if (tokens[2].second == "variable") {
+                            verbose("Editing variable in 2nd token");
+                            auto& varAdd = variables[tokens[2].first];
+                            if (varAdd.type == VarType::INTEGER || varAdd.type == VarType::DECIMAL) {
+                                tokens[2].first = to_string(get<double>(varAdd.value));
+                                tokens[2].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[4].second == "variable") {
+                            verbose("Editing variable in 4th token");
+                            auto& varAdd = variables[tokens[4].first];
+                            if (varAdd.type == VarType::INTEGER || varAdd.type == VarType::DECIMAL) {
+                                tokens[4].first = to_string(get<double>(varAdd.value));
+                                tokens[4].second = "int";
+                            } else {
+                                error("not all the variables you're adding are integers");
+                                return 0;
+                            }
+                        }
+                        if (tokens[2].second != "int" || tokens[4].second != "int") {
+                            verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
+                            error("make sure you're adding integers and integers when setting an integer");
+                            return 0;
+                        }
+                        if (tokens[2].first == "0" || tokens[4].first == "0") {
+                            error("Don't divide by zero or the end of the universe will be upon us you idiot");
+                            verbose("(please don't try any funny business i'm begging you)");
+                            return 0;
+                        }
+                        verbose("Trying to divide variables");
+                        var.value = stod(tokens[2].first) / stoi(tokens[4].first);
+                        return 0;
+                    }
+                }
             }
             return 0;
         }
