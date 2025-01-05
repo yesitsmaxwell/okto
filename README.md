@@ -30,8 +30,13 @@ A bit like Python 2 or shell.
 
 Some built in functions include:
 
-`log`: Log something to the console. Usage: `log (variable, string, decimal, integer)` Example: `log "Hello, World!"`
+`log`: Log something to the console. Usage: `log (string, decimal, integer)` Example: `log "Hello, World!"`
+
 `type`: Check the type of something. If it doesn't have a type, it's unknown. Usage: `type (function, variable, string, decimal, integer, incrementor, modifier, operator, comparitor, equals)` Example: `type 432`
+
+`run`: Run a command on the system. May not work on every OS. Usage: `run (string)`
+
+`exit`: Exit the program. Usage: `exit (integer)`
 
 Okto is strongly typed, which means we need to learn about all the different types in the language! At present there are three types in Okto: strings, integers and decimals. Defining variables uses a C/C++ like syntax.
 
@@ -53,10 +58,14 @@ Decimals are non-whole numbers, like `3.14159`.
 
 Define a decimal in Okto with `dec myDecimal = 3.14159`
 
+#### Using variables
+
+Use variables in your code like `$variable`, but replace variable with your actual variable's name. Make sure to use correct types in places! Incorporate a variable inside a string with `"${variable}"`
+
 #### Updating Variables
 
 Right now only integers and decimals can be changed. I'll refer to these as numbers.
 
 Increment numbers with `myVariable ++` and decrement with `myVariable --`.
 
-Add stuff together in number variables with `myVariable = myOtherVariable + 7`. You can also subtract, multiply and divide with -, * and / respectively. For now you can't math outside of variables as it's still a prototype feature.
+Add stuff together in number variables with `myVariable = $myOtherVariable + 7`. You can also subtract, multiply and divide with -, * and / respectively. For now you can't math outside of variables as it's still a prototype feature.
