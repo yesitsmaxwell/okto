@@ -85,6 +85,63 @@ private:
     void verbose(const string& str) {
         if (isVerbose) cout << "\u001b[36m Info: " << str << "\u001b[39m" << endl;
     }
+    
+    string interpolateVariables(const string& input) {
+        string result;
+        size_t pos = 0;
+        bool inString = false;
+        
+        while (pos < input.length()) {
+            if (input[pos] == '"') {
+                inString = !inString;
+                result += input[pos];
+                pos++;
+            } else if (pos + 1 < input.length() && input[pos] == '$' && input[pos + 1] == '{') {
+                size_t end = input.find('}', pos);
+                if (end != string::npos) {
+                    string varName = input.substr(pos + 2, end - (pos + 2));
+                    auto it = variables.find(varName);
+                    if (it != variables.end()) {
+                        result += it->second.toString();
+                    } else {
+                        error("Variable " + varName + " not found");
+                        result += "${" + varName + "}";
+                    }
+                    pos = end + 1;
+                } else {
+                    result += input[pos];
+                    pos++;
+                }
+            } else {
+                result += input[pos];
+                pos++;
+            }
+        }
+        
+        return result;
+    }
+
+    vector<pair<string, string>> preProcessTokens(const vector<pair<string, string>>& tokens) {
+        vector<pair<string, string>> processed;
+        for (const auto& [token, type] : tokens) {
+            if (type == "str") {
+                string processedStr = interpolateVariables(token);
+                processed.push_back({processedStr, "str"});
+            } else if (token[0] == '$' && token.length() > 1) {
+                string varName = token.substr(1);
+                auto it = variables.find(varName);
+                if (it != variables.end()) {
+                    processed.push_back({it->second.toString(), getTokenType(it->second.toString())});
+                } else {
+                    error("Variable " + varName + " not found");
+                    processed.push_back({token, "unknown"});
+                }
+            } else {
+                processed.push_back({token, type});
+            }
+        }
+        return processed;
+    }
 
     vector<pair<string, string>> tokenize(const string& input) {
         vector<pair<string, string>> tokens;
@@ -190,8 +247,10 @@ private:
 
 public:
     auto executeCommand(const string& input) {
+        string processedInput = interpolateVariables(input);
         auto tokens = tokenize(input);
         if (tokens.empty()) return 0;
+        tokens = preProcessTokens(tokens);
 
         if (tokens[0].first == "log") {
             verbose("Log command run");
@@ -200,22 +259,12 @@ public:
                 error("log requires an argument");
                 return 0;
             }
-
             const auto& [token, type] = tokens[1];
             if (type == "str" || type == "int" || type == "dec") {
                 cout << token << endl;
             }
-            else if (type == "variable") {
-                auto it = variables.find(token);
-                if (it != variables.end()) {
-                    cout << it->second.toString() << endl;
-                }
-            }
-            else if (type == "function") {
-                error("for now, functions cannot be logged");
-            }
-            else if (type == "unknown") {
-                error("that type is unknown");
+            else {
+                error("that type cannot be logged");
             }
             return 0;
         }
