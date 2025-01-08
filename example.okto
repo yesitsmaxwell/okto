@@ -1,5 +1,24 @@
 #!/home/max/code/okto/okto
-int dingus = 5
-log dingus
-dingus ++
-log dingus
+// Hello! This is some example Okto code to help you get started.
+// Log something to the console...
+log "Hello Okto!"
+log 3.14159
+log 7
+
+// Log a variable to the console
+str myString = "Hello Okto String!"
+log "${myString}"
+
+// Do some stuff with integers
+// All this stuff can be done with decimals too, using the "dec" keyword.
+int myInt = 5
+log $myInt
+
+myInt ++
+log $myInt
+
+myInt = $myInt + 4
+log $myInt
+
+// Exit the program
+exit

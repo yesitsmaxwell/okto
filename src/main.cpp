@@ -13,6 +13,7 @@ enum class VarType {
     INTEGER,
     DECIMAL,
     STRING,
+    BOOLEAN,
     UNKNOWN
 };
 
@@ -43,7 +44,7 @@ private:
     map<string, Variable> variables;
     bool isVerbose = false;
     const vector<string> builtInFunctions = {
-        "exit", "log", "type", "run", "verbose", "str", "dec", "int"
+        "exit", "log", "type", "run", "verbose", "str", "dec", "int", "bool"
     };
 
     const vector<string> operators = {
@@ -78,8 +79,11 @@ private:
         }
     }
 
-    void error(const string& str) {
+    void error(const string& str, int exitCode = 1) {
         cout << "\u001b[31m Error running code: " << str << "\u001b[39m" << endl;
+        if (exitCode != 0) {
+            exit(exitCode);
+        }
     }
 
     void verbose(const string& str) {
@@ -251,12 +255,19 @@ public:
         auto tokens = tokenize(input);
         if (tokens.empty()) return 0;
         tokens = preProcessTokens(tokens);
+        
+        verbose("Attempting to run function " + tokens[0].first);
+        
+        if (tokens[0].first == "//") {
+            verbose("Comment detected. Skipping line...");
+            return 0;
+        }
 
         if (tokens[0].first == "log") {
-            verbose("Log command run");
+            verbose("Log function run");
             
             if (tokens.size() < 2) {
-                error("log requires an argument");
+                error("Log requires an argument");
                 return 0;
             }
             const auto& [token, type] = tokens[1];
@@ -264,12 +275,13 @@ public:
                 cout << token << endl;
             }
             else {
-                error("that type cannot be logged");
+                error("Type " + type + " cannot be logged");
             }
             return 0;
         }
         
         else if (tokens[0].first == "exit") {
+            verbose("Exit function run");
             if (tokens.size() < 2) {
                 exit(0);
             } else if (tokens.size() > 1) {
@@ -284,8 +296,9 @@ public:
         }
         
         else if (tokens[0].first == "type") {
+            verbose("Type function run");
             if (tokens.size() < 2) {
-                error("type requires an argument"); 
+                error("Type requires an argument"); 
                 return 0;
             }
             const auto& [token, type] = tokens[1];
@@ -294,8 +307,13 @@ public:
         }
 
         else if (tokens[0].first == "run") {
+            verbose("Run function run");
             if (tokens.size() < 2) {
-                error("run requires an argument");
+                error("Run requires an argument");
+                return 0;
+            }
+            if (tokens[1].second != "string") {
+                error("Run argument must be string");
                 return 0;
             }
             string inputStr = tokens[1].first;
@@ -305,7 +323,7 @@ public:
             return 0;
         }
         else if (tokens[0].first == "str") {
-            verbose("String command run");
+            verbose("String function run");
             if (tokens.size() < 2) {
                 error("variable must have a name");
                 return 0;
@@ -334,12 +352,12 @@ public:
             value = value.substr(1, value.length() - 2);
             variables[varName] = Variable(VarType::STRING, value);
 
-            verbose("String variable " + varName + "defined as " + value);
+            verbose("String variable " + varName + " defined as " + value);
             return 0;
         }
 
         else if (tokens[0].first == "int") {
-            verbose("Integer command run");
+            verbose("Integer function run");
             if (tokens.size() < 2) {
                 error("variable must have a name");
                 return 0;
@@ -367,12 +385,12 @@ public:
             int value = stoi(tokens[3].first);
             variables[varName] = Variable(VarType::INTEGER, value);
 
-            verbose("Integer variable " + varName + "defined as " + to_string(value));
+            verbose("Integer variable " + varName + " defined as " + to_string(value));
             return 0;
         }
 
         else if (tokens[0].first == "dec") {
-            verbose("Decimal command run");
+            verbose("Decimal function run");
             if (tokens.size() < 2) {
                 error("variable must have a name");
                 return 0;
@@ -400,12 +418,14 @@ public:
             double value = stod(tokens[3].first);
             variables[varName] = Variable(VarType::DECIMAL, value);
 
-            verbose("Decimal variable " + varName + "defined as " + to_string(value));
+            verbose("Decimal variable " + varName + " defined as " + to_string(value));
             return 0;
         }
 
         else if (tokens[0].first == "verbose") {
+            verbose("Verbose mode disabled");
             isVerbose = !isVerbose;
+            verbose("Verbose mode enabled");
             return 0;
         }
 
@@ -578,7 +598,7 @@ public:
         }
         
         if (!tokens[0].first.empty()) {
-            error("I don't know how that works");
+            error(tokens[0].first + " isn't a function or variable. Check that the function or variable exists prior to running this line of code?");
             return 0;
         }
         return 0;
@@ -586,24 +606,24 @@ public:
 };
 
 int main(int argc, char *argv[]) {
-    cout << "Oktolang interpreter\n";
     Interpreter interpreter;
-    
     if (argc > 1) {
         ifstream inFile(argv[1]);
         string line;
         while (getline(inFile, line)) {
             if (line[0] == '#') continue;
-            if (interpreter.executeCommand(line) != 0) return 1;
+            interpreter.executeCommand(line);
         }
     } else {
         string input;
+        cout << "Oktolang interpreter\n";
         while (true) {
             cout << "> ";
             getline(cin, input);
-            if (interpreter.executeCommand(input) != 0) break;
+            interpreter.executeCommand(input); 
         }
     }
     return 0;
 }
+
 
