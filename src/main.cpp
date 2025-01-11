@@ -250,25 +250,29 @@ private:
     }
 
 public:
-    auto executeCommand(const string& input) {
+    variant<int, string, double, bool> executeCommand(const string& input) {
         string processedInput = interpolateVariables(input);
         auto tokens = tokenize(input);
-        if (tokens.empty()) return 0;
+        if (tokens.empty()) return true;
         tokens = preProcessTokens(tokens);
         
+        for (int i = 0; i < tokens.size(); i++) {
+            if (tokens[i].second == "str") {
+                tokens[i].first.erase(tokens[i].first.begin());
+                tokens[i].first.erase(tokens[i].first.begin() + tokens[i].first.size() - 1);
+            }
+        }
         verbose("Attempting to run function " + tokens[0].first);
         
         if (tokens[0].first == "//") {
             verbose("Comment detected. Skipping line...");
-            return 0;
+            return true;
         }
 
         if (tokens[0].first == "log") {
             verbose("Log function run");
-            
             if (tokens.size() < 2) {
                 error("Log requires an argument");
-                return 0;
             }
             const auto& [token, type] = tokens[1];
             if (type == "str" || type == "int" || type == "dec") {
@@ -277,7 +281,7 @@ public:
             else {
                 error("Type " + type + " cannot be logged");
             }
-            return 0;
+            return true;
         }
         
         else if (tokens[0].first == "exit") {
@@ -292,60 +296,68 @@ public:
                     error("exit argument must be integer");
                 }
             }
-            return 0;
+            return true;
         }
         
         else if (tokens[0].first == "type") {
             verbose("Type function run");
             if (tokens.size() < 2) {
                 error("Type requires an argument"); 
-                return 0;
             }
             const auto& [token, type] = tokens[1];
             cout << type << endl;
-            return 0;
+            return true;
         }
 
         else if (tokens[0].first == "run") {
             verbose("Run function run");
             if (tokens.size() < 2) {
                 error("Run requires an argument");
-                return 0;
             }
             if (tokens[1].second != "string") {
                 error("Run argument must be string");
-                return 0;
             }
             string inputStr = tokens[1].first;
             char input[inputStr.length() + 1];
             strcpy(input, inputStr.c_str());
             int returnCode = system(input);
-            return 0;
+            return true;
+        }
+        
+        else if (tokens[0].first == "in") {
+            verbose("In function run");
+            string input;
+            if (tokens.size() > 1) {
+                verbose("Argument type for in is " + tokens[1].second);
+                if (tokens[1].second == "str") {
+                    cout << tokens[1].first;
+                } else {
+                    error("In argument must be string");
+                }
+            }
+            getline(cin, input);
+            verbose("Inputted " + input);
+            return input;
         }
         else if (tokens[0].first == "str") {
             verbose("String function run");
             if (tokens.size() < 2) {
                 error("variable must have a name");
-                return 0;
             }
             if (tokens.size() < 4) {
                 error("when defining a variable, set what the variable means");
-                return 0;
             }
 
             const auto& varName = tokens[1].first;
 
             if (tokens[2].first != "=") {
                 error("when defining a variable, use '='");
-                return 0;
             }
             if (variables.find(varName) != variables.end()) {
                 error("variable is already initialized");
-                return 0;
             }
             if (tokens[3].second != "str") {
                 error("you've initialized a string, but set it's value to a different type");
-                return 0;
             }
 
             string value = tokens[3].first;
@@ -353,92 +365,81 @@ public:
             variables[varName] = Variable(VarType::STRING, value);
 
             verbose("String variable " + varName + " defined as " + value);
-            return 0;
+            return true;
         }
 
         else if (tokens[0].first == "int") {
             verbose("Integer function run");
             if (tokens.size() < 2) {
                 error("variable must have a name");
-                return 0;
             }
             if (tokens.size() < 4) {
                 error("when defining a variable, set what the variable means");
-                return 0;
             }
 
             const auto& varName = tokens[1].first;
 
             if (tokens[2].first != "=") {
                 error("when defining a variable, use '='");
-                return 0;
             }
             if (variables.find(varName) != variables.end()) {
                 error("variable is already initialized");
-                return 0;
             }
             if (tokens[3].second != "int") {
                 error("you've initialized an integer, but set it's value to a different type");
-                return 0;
             }
 
             int value = stoi(tokens[3].first);
             variables[varName] = Variable(VarType::INTEGER, value);
 
             verbose("Integer variable " + varName + " defined as " + to_string(value));
-            return 0;
+            return true;
         }
 
         else if (tokens[0].first == "dec") {
             verbose("Decimal function run");
             if (tokens.size() < 2) {
                 error("variable must have a name");
-                return 0;
             }
             if (tokens.size() < 4) {
                 error("when defining a variable, set what the variable means");
-                return 0;
             }
 
             const auto& varName = tokens[1].first;
 
             if (tokens[2].first != "=") {
                 error("when defining a variable, use '='");
-                return 0;
             }
             if (variables.find(varName) != variables.end()) {
                 error("variable is already initialized");
-                return 0;
             }
             if (tokens[3].second != "dec") {
                 error("you've initialized a decimal, but set it's value to a different type");
-                return 0;
             }
 
             double value = stod(tokens[3].first);
             variables[varName] = Variable(VarType::DECIMAL, value);
 
             verbose("Decimal variable " + varName + " defined as " + to_string(value));
-            return 0;
+            return true;
         }
 
         else if (tokens[0].first == "verbose") {
             verbose("Verbose mode disabled");
             isVerbose = !isVerbose;
             verbose("Verbose mode enabled");
-            return 0;
+            return true;
         }
 
         else if (tokens[0].first == "help") {
             cout << "Oktolang Help\nBuilt In Functions:\n help: This current help function\n log:  Log something to the command line\n type: Find the type of the input\n str:  Define a string\n int:  Define a whole number\n dec:  Define a number with a decimal place\n";
-            return 0;
+            return true;
         }
         
         else if (variables.find(tokens[0].first) != variables.end()) {
             verbose("Doing stuff with variables...");
             if (tokens.size() < 2) {
                 error("Expected an operator");
-                return 0;
             }
             auto& var = variables[tokens[0].first];
             if (var.type == VarType::INTEGER) {
@@ -465,7 +466,6 @@ public:
                                 tokens[2].second = "int";
                             } else {
                                 error("not all the variables you're adding are integers");
-                                return 0;
                             }
                         }
                         if (tokens[4].second == "variable") {
@@ -476,17 +476,15 @@ public:
                                 tokens[4].second = "int";
                             } else {
                                 error("not all the variables you're adding are integers");
-                                return 0;
                             }
                         }
                         if (tokens[2].second != "int" || tokens[4].second != "int") {
                             verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
                             error("make sure you're adding integers and integers when setting an integer");
-                            return 0;
                         }
                         verbose("Trying to add variables");
                         var.value = stod(tokens[2].first) + stoi(tokens[4].first);
-                        return 0;
+                        return true;
                     }
                     if (tokens[3].first == "-") {
                         verbose("Subtracting...");
@@ -498,7 +496,6 @@ public:
                                 tokens[2].second = "int";
                             } else {
                                 error("not all the variables you're adding are integers");
-                                return 0;
                             }
                         }
                         if (tokens[4].second == "variable") {
@@ -509,17 +506,15 @@ public:
                                 tokens[4].second = "int";
                             } else {
                                 error("not all the variables you're adding are integers");
-                                return 0;
                             }
                         }
                         if (tokens[2].second != "int" || tokens[4].second != "int") {
                             verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
                             error("make sure you're adding integers and integers when setting an integer");
-                            return 0;
                         }
                         verbose("Trying to subtract variables");
                         var.value = stod(tokens[2].first) - stoi(tokens[4].first);
-                        return 0;
+                        return true;
                     }
                     if (tokens[3].first == "*") {
                         verbose("Multiplying...");
@@ -531,7 +526,6 @@ public:
                                 tokens[2].second = "int";
                             } else {
                                 error("not all the variables you're adding are integers");
-                                return 0;
                             }
                         }
                         if (tokens[4].second == "variable") {
@@ -542,17 +536,15 @@ public:
                                 tokens[4].second = "int";
                             } else {
                                 error("not all the variables you're adding are integers");
-                                return 0;
                             }
                         }
                         if (tokens[2].second != "int" || tokens[4].second != "int") {
                             verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
                             error("make sure you're adding integers and integers when setting an integer");
-                            return 0;
                         }
                         verbose("Trying to multiply variables");
                         var.value = stod(tokens[2].first) * stoi(tokens[4].first);
-                        return 0;
+                        return true;
                     }
                     if (tokens[3].first == "/") {
                         verbose("Dividing...");
@@ -564,7 +556,6 @@ public:
                                 tokens[2].second = "int";
                             } else {
                                 error("not all the variables you're adding are integers");
-                                return 0;
                             }
                         }
                         if (tokens[4].second == "variable") {
@@ -575,33 +566,29 @@ public:
                                 tokens[4].second = "int";
                             } else {
                                 error("not all the variables you're adding are integers");
-                                return 0;
                             }
                         }
                         if (tokens[2].second != "int" || tokens[4].second != "int") {
                             verbose("Detected types are " + tokens[2].second + " and " + tokens[4].second);
                             error("make sure you're adding integers and integers when setting an integer");
-                            return 0;
                         }
                         if (tokens[2].first == "0" || tokens[4].first == "0") {
                             error("Don't divide by zero or the end of the universe will be upon us you idiot");
                             verbose("(please don't try any funny business i'm begging you)");
-                            return 0;
                         }
                         verbose("Trying to divide variables");
                         var.value = stod(tokens[2].first) / stoi(tokens[4].first);
-                        return 0;
+                        return true;
                     }
                 }
             }
-            return 0;
+            return true;
         }
         
         if (!tokens[0].first.empty()) {
             error(tokens[0].first + " isn't a function or variable. Check that the function or variable exists prior to running this line of code?");
-            return 0;
         }
-        return 0;
+        return true;
     };
 };
 
