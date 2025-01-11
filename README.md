@@ -38,7 +38,9 @@ Some built in functions include:
 
 `run`: Run a command on the system. May not work on every OS. Usage: `run (string)`
 
-`exit`: Exit the program. Usage: `exit (integer)`
+`in`: Take input from the console. For now, this doesn't do much, but this will change soon. Usage: `in (optional: string)` Example: `in "What's your name? "`
+
+`exit`: Exit the program. Usage: `exit (optional: integer)`
 
 Okto is strongly typed, which means we need to learn about all the different types in the language! At present there are three types in Okto: strings, integers and decimals. Defining variables uses a C/C++ like syntax.
 
