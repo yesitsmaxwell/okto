@@ -16,6 +16,10 @@ Maybe one day the NodeJS community will find it and obsess over it in it's unopt
 
 First, download the source code and your favourite C++ compiler. Next, clone the repo (`git clone https://git.maxwellj.xyz/max/okto`) and CD into it. Compile the code (if the GCC is your poison, `g++ src/okto -o okto`) and run the binary.
 
+*Sidenote:* Okto has been tested extensively on Linux, and is known to compile for a Windows build target. I'm working on automating tests and builds for Windows, Linux and MacOS. 
+
+*Less Important Sidenote:* How is Haiku more developer friendly than Windows and MacOS? g++ out of the box! It's almost as if they want people to develop for it...
+
 Now we can start writing our code!
 
 ### The Basics of Okto
