@@ -1,3 +1,5 @@
+![Okto programming language logo](https://git.maxwellj.xyz/repo-avatars/051ee58b3e6ca69fa4057c945d2ae46e6749c607092e93f5679bd8c6d338b1bc)
+
 # oktolang - A silly little programming language
 
 ## What is Okto?
