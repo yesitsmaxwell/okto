@@ -14,7 +14,63 @@ Maybe one day the NodeJS community will find it and obsess over it in it's unopt
 
 ## How do I Okto?
 
-First, download the source code and your favourite C++ compiler. Next, clone the repo (`git clone https://git.maxwellj.xyz/max/okto`) and CD into it. Compile the code (if the GCC is your poison, `g++ src/okto -o okto`) and run the binary.
+Okto uses features from C++ 17, so make sure you have an updated compiler. I recommend gcc. Here are some instructions:
+
+### Linux (and most other Unix-like)
+
+First, install `gcc` or another C++ compiler.
+
+Clone the repository, CD into it and run:
+
+```bash
+g++ src/main.cpp -o okto
+```
+
+If needed, statically link with `-static`. 
+
+Run `./okto` to run, and test with `./okto example.okto` (assuming you did clone the repository)
+
+### MacOS
+
+First, install Xcode and accept the agreement. 
+
+Then, clone the repository CD into it and run:
+
+```bash
+g++ src/main.cpp -o okto -std=c++17
+```
+
+If needed, statically link with `-static`.
+
+Run `./okto` to run, and test with `./okto example.okto` (assuming you did clone the repository)
+
+### Windows
+
+There are three ways to compile for Windows: through Linux (I personally recommend, can be done through WSL), through MSYS2 or Cygwin, or through Windows.
+
+#### Through Linux
+
+Install your distro's mingw GCC package. On Arch Linux, it's `mingw-w64-gcc`. Compile with: 
+
+```bash
+x86_64-w64-mingw32 src/main.cpp -o okto.exe -static
+```
+
+If you're not using WSL, you may want to use Wine to test the build. At the time of writing, all Okto features should work when run with Wine. 
+
+#### Through MSYS2/Cygwin
+
+Refer to the documentation for these platforms. Steps should be similar to compiling for Linux.
+
+#### Through Windows
+
+Search for a package including g++ through `winget`, and install your preferred option. Compile with:
+
+```powershell
+g++ src/main.cpp -o okto
+```
+
+If needed, statically link with `-static` **This is highly recommended if distributing to other Windows machines.**.
 
 Now we can start writing our code!
 
@@ -38,7 +94,9 @@ Some built in functions include:
 
 `run`: Run a command on the system. May not work on every OS. Usage: `run (string)`
 
-`exit`: Exit the program. Usage: `exit (integer)`
+`in`: Take input from the console. For now, this doesn't do much, but this will change soon. Usage: `in (optional: string)` Example: `in "What's your name? "`
+
+`exit`: Exit the program. Usage: `exit (optional: integer)`
 
 Okto is strongly typed, which means we need to learn about all the different types in the language! At present there are three types in Okto: strings, integers and decimals. Defining variables uses a C/C++ like syntax.
 
