@@ -14,6 +14,8 @@ Maybe one day the NodeJS community will find it and obsess over it in it's unopt
 
 ## How do I Okto?
 
+If you'd like to try online, a [replit template](https://replit.com/@maxwelljxyz/okto) is avaliable.
+
 Okto uses features from C++ 17, so make sure you have an updated compiler. I recommend gcc. Here are some instructions:
 
 ### Linux (and most other Unix-like)
